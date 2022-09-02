@@ -28,60 +28,42 @@ let final_position = [];
 let creature = JSON.parse(JSON.stringify(a.creatures));
 let zombie_index = 0;
 
-//set movement functions
-function left(x, y) {
-  if (x - 1 < 0) {
+//define function for zombie moving out of grid
+function correction(x, y) {
+  if (x < 0) {
     x = a.gridSize - 1;
-  } else {
-    x = x - 1;
-  }
-
-  return { new_x: x, new_y: y };
-}
-
-function right(x, y) {
-  if (x + 1 > a.gridSize - 1) {
+  } else if (x > a.gridSize - 1) {
     x = 0;
-  } else {
-    x = x + 1;
-  }
-
-  return { new_x: x, new_y: y };
-}
-
-function up(x, y) {
-  if (y - 1 < 0) {
+  } else if (y < 0) {
     y = a.gridSize - 1;
-  } else {
-    y = y - 1;
-  }
-
-  return { new_x: x, new_y: y };
-}
-
-function down(x, y) {
-  if (y + 1 > a.gridSize - 1) {
+  } else if (y > a.gridSize - 1) {
     y = 0;
-  } else {
-    y = y + 1;
   }
-
   return { new_x: x, new_y: y };
 }
 
-//set movement table
+//define function for zombie movement
+function move(x, y, x_delta, y_delta) {
+  x = x + x_delta;
+  y = y + y_delta;
+  const ret = correction(x, y);
+  return { new_x: ret.new_x, new_y: ret.new_y };
+}
+
+//create command table
 const movement_table = {
-  L: left,
-  R: right,
-  U: up,
-  D: down,
+  L: { delta_x: -1, delta_y: 0 },
+  R: { delta_x: 1, delta_y: 0 },
+  U: { delta_x: 0, delta_y: -1 },
+  D: { delta_x: 0, delta_y: 1 },
 };
 
-//detect zombie movement
+//define function to log zombie movement
 function process(x, y) {
   for (i = 0; i < a.commands.length; i++) {
     operation = movement_table[a.commands[i]];
-    const ret = operation(x, y);
+
+    const ret = move(x, y, operation.delta_x, operation.delta_y);
     x = ret.new_x;
     y = ret.new_y;
 
